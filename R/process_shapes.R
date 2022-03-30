@@ -19,10 +19,10 @@ build_shapes <- function() {
 
 
   shapes_lad <-
-    sf::st_read("inst/extdata/shapes/la/la.shp") %>%
+    sf::st_read("inst/extdata/shapes/la/LAD_DEC_2021_UK_BGC.shp") %>%
     sf::st_transform(crs = 4326) %>%
-    dplyr::rename(geo_id = cmlad11cd,
-                  geo_name = cmlad11nm) %>%
+    dplyr::rename(geo_id = LAD21CD,
+                  geo_name = LAD21NM) %>%
     dplyr::select(geo_id, geo_name, geometry) %>%
     dplyr::left_join(
       readr::read_rds("inst/extdata/stats/population/stats_population_lad.rds"), by = "geo_id"

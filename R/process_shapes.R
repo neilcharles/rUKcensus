@@ -1,7 +1,8 @@
 build_shapes <- function() {
 
   lookup_areas <- readr::read_csv("inst/extdata/lookup/area_names/PCD_OA_LSOA_MSOA_LAD_MAY21_UK_LU.csv") %>% #not in package because huge
-    dplyr::group_by(lsoa11cd, msoa11cd, ladcd, lsoa11nm, msoa11nm, ladnm, ladnmw) %>%
+    dplyr::mutate(post_town = stringr::str_extract(pcd7, "^\\D+")) %>%
+    dplyr::group_by(lsoa11cd, msoa11cd, ladcd, lsoa11nm, msoa11nm, ladnm) %>%
     dplyr::summarise() %>%
     dplyr::ungroup()
 
@@ -16,7 +17,6 @@ build_shapes <- function() {
     dplyr::left_join(
       readr::read_rds("inst/extdata/stats/population/stats_population_lsoa.rds"), by = "geo_id"
     )
-
 
   shapes_lad <-
     sf::st_read("inst/extdata/shapes/la/LAD_DEC_2021_UK_BGC.shp") %>%
@@ -39,7 +39,11 @@ build_shapes <- function() {
       readr::read_rds("inst/extdata/stats/population/stats_population_msoa.rds"), by = "geo_id"
     )
 
+  shapes_uk_coastline <- shapes_msoa %>%
+    dplyr::summarise(geometry = sf::st_union(geometry))
+
   usethis::use_data(shapes_lad,
                     shapes_msoa,
-                    shapes_lsoa, overwrite = TRUE)
+                    shapes_lsoa,
+                    shapes_uk_coastline, overwrite = TRUE)
 }
